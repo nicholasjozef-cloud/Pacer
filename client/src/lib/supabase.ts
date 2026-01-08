@@ -13,7 +13,6 @@ const isValidUrl = (url: string): boolean => {
 };
 
 async function initializeSupabase(): Promise<SupabaseClientType | null> {
-  // Return existing instance if already created
   if (supabaseInstance) {
     return supabaseInstance;
   }
@@ -42,7 +41,6 @@ async function initializeSupabase(): Promise<SupabaseClientType | null> {
     }
   }
   
-  // Create single instance
   if (isValidUrl(supabaseUrl) && supabaseAnonKey) {
     supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
   }
@@ -51,19 +49,10 @@ async function initializeSupabase(): Promise<SupabaseClientType | null> {
 }
 
 export async function getSupabase(): Promise<SupabaseClientType | null> {
-  // Use single promise to prevent multiple initialization calls
   if (!initPromise) {
     initPromise = initializeSupabase();
   }
   return initPromise;
 }
 
-// Synchronous getter - may return null if not yet initialized
-export function getSupabaseSync(): SupabaseClientType | null {
-  return supabaseInstance;
-}
-
-// Legacy export for compatibility - will be null initially
-export const supabase = supabaseInstance;
-
-export type SupabaseClient = typeof supabase;
+export type SupabaseClient = SupabaseClientType | null;

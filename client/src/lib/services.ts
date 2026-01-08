@@ -1,4 +1,4 @@
-import { getSupabase, supabase } from './supabase';
+import { getSupabase } from './supabase';
 import type { UserSettingsData, DayDetailsData } from '@shared/schema';
 
 export const userSettingsService = {
@@ -222,12 +222,11 @@ export const authService = {
     return session;
   },
 
-  onAuthStateChange(callback: (session: any) => void) {
-    // For auth state change, we need to use the synchronous client
-    // since this is a subscription setup
-    if (!supabase) return { unsubscribe: () => {} };
+  async onAuthStateChange(callback: (session: any) => void): Promise<{ unsubscribe: () => void }> {
+    const client = await getSupabase();
+    if (!client) return { unsubscribe: () => {} };
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
       callback(session);
     });
     
