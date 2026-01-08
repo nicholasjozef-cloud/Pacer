@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Dot } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Scatter, ComposedChart, Cell } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp } from 'lucide-react';
 import { WORKOUT_COLORS, getWorkoutCategory, type WorkoutCategory } from '@/lib/workout-colors';
@@ -20,42 +20,7 @@ interface ChartDataPoint {
   color: string;
 }
 
-function CustomDot(props: any) {
-  const { cx, cy, payload, dataKey } = props;
-  if (!cx || !cy) return null;
-  
-  const value = payload[dataKey];
-  if (value === 0 || value === null) return null;
-  
-  return (
-    <circle
-      cx={cx}
-      cy={cy}
-      r={6}
-      fill={payload.color}
-      stroke="hsl(var(--background))"
-      strokeWidth={2}
-    />
-  );
-}
-
-function CustomActiveDot(props: any) {
-  const { cx, cy, payload } = props;
-  if (!cx || !cy) return null;
-  
-  return (
-    <circle
-      cx={cx}
-      cy={cy}
-      r={8}
-      fill={payload.color}
-      stroke="hsl(var(--background))"
-      strokeWidth={3}
-    />
-  );
-}
-
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload }: any) {
   if (!active || !payload || !payload.length) return null;
   
   const data = payload[0]?.payload as ChartDataPoint;
@@ -120,7 +85,7 @@ export function WeeklyProgressChart({ weekPlan, currentWeek }: WeeklyProgressCha
       <CardContent>
         <div className="h-64" data-testid="weekly-progress-chart">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
+            <ComposedChart
               data={chartData}
               margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
             >
@@ -165,11 +130,20 @@ export function WeeklyProgressChart({ weekPlan, currentWeek }: WeeklyProgressCha
                 dataKey="actual"
                 stroke="hsl(var(--primary))"
                 strokeWidth={2}
-                dot={<CustomDot dataKey="actual" />}
-                activeDot={<CustomActiveDot />}
+                dot={false}
                 name="Actual"
               />
-            </LineChart>
+              <Scatter dataKey="actual" name="Workouts">
+                {chartData.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={entry.color}
+                    stroke="hsl(var(--background))"
+                    strokeWidth={2}
+                  />
+                ))}
+              </Scatter>
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
         
