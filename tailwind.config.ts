@@ -81,6 +81,14 @@ export default {
           busy: "rgb(239 68 68)",
           offline: "rgb(156 163 175)",
         },
+        workout: {
+          easy: "hsl(var(--workout-easy) / <alpha-value>)",
+          recovery: "hsl(var(--workout-recovery) / <alpha-value>)",
+          tempo: "hsl(var(--workout-tempo) / <alpha-value>)",
+          intervals: "hsl(var(--workout-intervals) / <alpha-value>)",
+          long: "hsl(var(--workout-long) / <alpha-value>)",
+          rest: "hsl(var(--workout-rest) / <alpha-value>)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)"],
