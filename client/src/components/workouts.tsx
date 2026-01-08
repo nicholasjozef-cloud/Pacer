@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { getWorkoutTailwindClass } from '@/lib/workout-colors';
 import type { TrainingPlan, Workout } from '@shared/schema';
 import { WORKOUT_TYPES } from '@shared/schema';
 
@@ -36,22 +37,6 @@ export function Workouts({
     actual: weekPlan.reduce((sum, w) => sum + (w.actual || 0), 0),
   };
 
-  const getWorkoutColor = (type: string) => {
-    switch (type) {
-      case 'Easy':
-      case 'Recovery':
-        return 'bg-workout-easy text-white';
-      case 'Tempo':
-      case 'Intervals':
-        return 'bg-workout-tempo text-white';
-      case 'Long Run':
-        return 'bg-workout-long text-white';
-      case 'Rest':
-        return 'bg-muted text-muted-foreground';
-      default:
-        return 'bg-secondary';
-    }
-  };
 
   const startEditing = (dayIndex: number) => {
     const workout = weekPlan[dayIndex];
@@ -170,7 +155,7 @@ export function Workouts({
                         </SelectContent>
                       </Select>
                     ) : (
-                      <Badge className={cn("shrink-0", getWorkoutColor(workout.type))}>
+                      <Badge className={cn("shrink-0", getWorkoutTailwindClass(workout.type))}>
                         {workout.type}
                       </Badge>
                     )}

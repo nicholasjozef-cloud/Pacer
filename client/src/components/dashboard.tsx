@@ -1,5 +1,6 @@
 import { Target, Activity, Zap, Calendar, TrendingUp, Award } from 'lucide-react';
 import { StatCard, ProgressStatCard } from './stat-card';
+import { WeeklyProgressChart } from './weekly-progress-chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { UserSettingsData, TrainingPlan, DayDetailsData } from '@shared/schema';
@@ -125,77 +126,8 @@ export function Dashboard({ settings, trainingPlan, dayDetails, currentWeek, onT
         </Card>
       </div>
 
-      {/* Weekly Chart Placeholder */}
-      <Card className="border-border/50" data-testid="card-weekly-chart">
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-lg" data-testid="text-chart-title">
-            <TrendingUp className="w-5 h-5 text-primary" />
-            Weekly Volume Progression
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64 flex items-end justify-between gap-2 px-4 py-6">
-            {currentWeekPlan.map((day, i) => {
-              const maxMiles = Math.max(...currentWeekPlan.map(d => Math.max(d.planned, d.actual || 0)), 1);
-              const plannedHeight = (day.planned / maxMiles) * 100;
-              const actualHeight = ((day.actual || 0) / maxMiles) * 100;
-              
-              const getWorkoutColor = (type: string) => {
-                switch (type) {
-                  case 'Easy':
-                  case 'Recovery':
-                    return 'bg-workout-easy';
-                  case 'Tempo':
-                  case 'Intervals':
-                    return 'bg-workout-tempo';
-                  case 'Long Run':
-                    return 'bg-workout-long';
-                  default:
-                    return 'bg-muted';
-                }
-              };
-
-              return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-full h-48 flex items-end justify-center gap-1">
-                    <div 
-                      className="w-3 bg-muted/50 rounded-t transition-all duration-300"
-                      style={{ height: `${plannedHeight}%` }}
-                      title={`Planned: ${day.planned} mi`}
-                    />
-                    <div 
-                      className={`w-3 ${getWorkoutColor(day.type)} rounded-t transition-all duration-300`}
-                      style={{ height: `${actualHeight}%` }}
-                      title={`Actual: ${day.actual || 0} mi`}
-                    />
-                  </div>
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {day.day.slice(0, 1)}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex justify-center gap-6 pt-4 border-t border-border/50">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-muted/50 rounded" />
-              <span className="text-sm text-muted-foreground">Planned</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-workout-easy rounded" />
-              <span className="text-sm text-muted-foreground">Easy/Recovery</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-workout-tempo rounded" />
-              <span className="text-sm text-muted-foreground">Tempo/Intervals</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-workout-long rounded" />
-              <span className="text-sm text-muted-foreground">Long Run</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Weekly Progress Line Chart */}
+      <WeeklyProgressChart weekPlan={currentWeekPlan} currentWeek={currentWeek} />
 
       {/* Motivational Quote */}
       <Card className="border-border/50 bg-gradient-to-r from-card to-primary/5" data-testid="card-quote">
