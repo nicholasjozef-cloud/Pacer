@@ -1,11 +1,12 @@
-import { supabase } from './supabase';
+import { getSupabase, supabase } from './supabase';
 import type { UserSettingsData, DayDetailsData } from '@shared/schema';
 
 export const userSettingsService = {
   async get(userId: string): Promise<UserSettingsData | null> {
-    if (!supabase) return null;
+    const client = await getSupabase();
+    if (!client) return null;
     
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('user_settings')
       .select('*')
       .eq('user_id', userId)
@@ -30,9 +31,10 @@ export const userSettingsService = {
   },
 
   async save(userId: string, settings: UserSettingsData): Promise<void> {
-    if (!supabase) return;
+    const client = await getSupabase();
+    if (!client) return;
 
-    const { error } = await supabase
+    const { error } = await client
       .from('user_settings')
       .upsert({
         user_id: userId,
@@ -57,9 +59,10 @@ export const userSettingsService = {
 
 export const dayDetailsService = {
   async getAll(userId: string): Promise<Record<string, DayDetailsData>> {
-    if (!supabase) return {};
+    const client = await getSupabase();
+    if (!client) return {};
 
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('day_details')
       .select('*')
       .eq('user_id', userId);
@@ -87,9 +90,10 @@ export const dayDetailsService = {
   },
 
   async save(userId: string, dateKey: string, details: DayDetailsData): Promise<void> {
-    if (!supabase) return;
+    const client = await getSupabase();
+    if (!client) return;
 
-    const { error } = await supabase
+    const { error } = await client
       .from('day_details')
       .upsert({
         user_id: userId,
@@ -115,9 +119,10 @@ export const dayDetailsService = {
 
 export const stravaService = {
   async getConnection(userId: string) {
-    if (!supabase) return null;
+    const client = await getSupabase();
+    if (!client) return null;
 
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('strava_connections')
       .select('*')
       .eq('user_id', userId)
@@ -138,9 +143,10 @@ export const stravaService = {
     athleteData: any,
     expiresAt: Date
   ): Promise<void> {
-    if (!supabase) return;
+    const client = await getSupabase();
+    if (!client) return;
 
-    const { error } = await supabase
+    const { error } = await client
       .from('strava_connections')
       .upsert({
         user_id: userId,
@@ -161,9 +167,10 @@ export const stravaService = {
   },
 
   async deleteConnection(userId: string): Promise<void> {
-    if (!supabase) return;
+    const client = await getSupabase();
+    if (!client) return;
 
-    const { error } = await supabase
+    const { error } = await client
       .from('strava_connections')
       .delete()
       .eq('user_id', userId);
@@ -177,9 +184,10 @@ export const stravaService = {
 
 export const authService = {
   async signIn(email: string, password: string) {
-    if (!supabase) throw new Error('Supabase not configured');
+    const client = await getSupabase();
+    if (!client) throw new Error('Supabase not configured');
     
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await client.auth.signInWithPassword({
       email,
       password,
     });
@@ -189,9 +197,10 @@ export const authService = {
   },
 
   async signUp(email: string, password: string) {
-    if (!supabase) throw new Error('Supabase not configured');
+    const client = await getSupabase();
+    if (!client) throw new Error('Supabase not configured');
     
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await client.auth.signUp({
       email,
       password,
     });
@@ -201,17 +210,21 @@ export const authService = {
   },
 
   async signOut() {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+    const client = await getSupabase();
+    if (!client) return;
+    await client.auth.signOut();
   },
 
   async getSession() {
-    if (!supabase) return null;
-    const { data: { session } } = await supabase.auth.getSession();
+    const client = await getSupabase();
+    if (!client) return null;
+    const { data: { session } } = await client.auth.getSession();
     return session;
   },
 
   onAuthStateChange(callback: (session: any) => void) {
+    // For auth state change, we need to use the synchronous client
+    // since this is a subscription setup
     if (!supabase) return { unsubscribe: () => {} };
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {

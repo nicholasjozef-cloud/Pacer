@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { userSettingsService, dayDetailsService, authService } from '@/lib/services';
 import { Auth } from '@/components/auth';
 import { Dashboard } from '@/components/dashboard';
@@ -76,23 +76,32 @@ export default function Home() {
 
   // Check auth status
   useEffect(() => {
-    if (!supabase) {
-      setAuthLoading(false);
-      return;
-    }
+    let subscription: { unsubscribe: () => void } | null = null;
+    
+    const initAuth = async () => {
+      const client = await getSupabase();
+      if (!client) {
+        setAuthLoading(false);
+        return;
+      }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+      const { data: { session } } = await client.auth.getSession();
       setSession(session);
       setUser(session?.user ?? null);
       setAuthLoading(false);
-    });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
+      const { data: { subscription: sub } } = client.auth.onAuthStateChange((_event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+      });
+      subscription = sub;
+    };
 
-    return () => subscription.unsubscribe();
+    initAuth();
+
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, []);
 
   // Load user data when logged in using services layer

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,20 +20,21 @@ export function Auth({ onAuthSuccess }: AuthProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!supabase) {
-      toast({
-        title: 'Configuration Error',
-        description: 'Supabase is not configured. Please check your environment variables.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     setLoading(true);
 
     try {
+      const client = await getSupabase();
+      if (!client) {
+        toast({
+          title: 'Configuration Error',
+          description: 'Supabase is not configured. Please check your environment variables.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error } = await client.auth.signInWithPassword({
           email,
           password,
         });
@@ -43,7 +44,7 @@ export function Auth({ onAuthSuccess }: AuthProps) {
           description: 'Successfully logged in.',
         });
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { error } = await client.auth.signUp({
           email,
           password,
         });

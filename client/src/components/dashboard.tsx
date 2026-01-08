@@ -4,12 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { UserSettingsData, TrainingPlan, DayDetailsData } from '@shared/schema';
 
+type TabType = 'dashboard' | 'calendar' | 'workouts' | 'settings';
+
 interface DashboardProps {
   settings: UserSettingsData;
   trainingPlan: TrainingPlan;
   dayDetails: Record<string, DayDetailsData>;
   currentWeek: number;
-  onTabChange: (tab: string) => void;
+  onTabChange: (tab: TabType) => void;
 }
 
 export function Dashboard({ settings, trainingPlan, dayDetails, currentWeek, onTabChange }: DashboardProps) {
