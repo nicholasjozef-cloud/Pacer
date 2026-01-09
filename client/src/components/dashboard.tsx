@@ -88,31 +88,39 @@ export function Dashboard({ settings, trainingPlan, dayDetails, currentWeek, onT
   return (
     <div className="space-y-6" data-testid="dashboard-container">
       {/* Race Countdown Header */}
-      {raceDate && daysToRace > 0 && (
-        <Card className="border-primary/30 bg-primary/5" data-testid="card-race-countdown">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Race Day Countdown</p>
+      <Card className="border-primary/30 bg-primary/5" data-testid="card-race-countdown">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Race Day Countdown</p>
+              {raceDate && daysToRace > 0 ? (
                 <p className="text-4xl font-bold text-primary mt-1" data-testid="text-days-to-race">
                   {daysToRace} <span className="text-lg font-normal text-muted-foreground">days to go</span>
                 </p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">Race Date</p>
-                <p className="text-lg font-semibold text-foreground">
-                  {new Date(raceDate + 'T00:00:00').toLocaleDateString('en-US', { 
-                    weekday: 'short',
-                    month: 'short', 
-                    day: 'numeric', 
-                    year: 'numeric' 
-                  })}
+              ) : raceDate && daysToRace <= 0 ? (
+                <p className="text-4xl font-bold text-primary mt-1" data-testid="text-days-to-race">
+                  Race Day!
                 </p>
-              </div>
+              ) : (
+                <p className="text-2xl font-bold text-muted-foreground mt-1" data-testid="text-days-to-race">
+                  Set your race date
+                </p>
+              )}
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Race Date</p>
+              <p className="text-lg font-semibold text-foreground">
+                {raceDate ? new Date(raceDate + 'T00:00:00').toLocaleDateString('en-US', { 
+                  weekday: 'short',
+                  month: 'short', 
+                  day: 'numeric', 
+                  year: 'numeric' 
+                }) : 'Not set'}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="stats-grid">
