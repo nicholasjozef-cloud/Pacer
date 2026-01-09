@@ -1,4 +1,4 @@
-import { Target, Activity, Calendar, TrendingUp, Award } from 'lucide-react';
+import { Target, Activity, Calendar, TrendingUp, Award, Play } from 'lucide-react';
 import { StatCard, ProgressStatCard } from './stat-card';
 import { WeeklyProgressChart } from './weekly-progress-chart';
 import { WeatherCard } from './weather-card';
@@ -67,6 +67,14 @@ export function Dashboard({ settings, trainingPlan, dayDetails, currentWeek, onT
   };
   const totalCalories = (todayMacros.protein * 4) + (todayMacros.carbs * 4) + (todayMacros.fats * 9);
 
+  // Get today's workout from training plan
+  const getDayOfWeek = () => {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return days[new Date().getDay()];
+  };
+  const todayDayName = getDayOfWeek();
+  const todayWorkout = currentWeekPlan.find(w => w.day === todayDayName);
+
   // Motivational quotes
   const quotes = [
     "The miracle isn't that I finished. The miracle is that I had the courage to start.",
@@ -79,6 +87,33 @@ export function Dashboard({ settings, trainingPlan, dayDetails, currentWeek, onT
 
   return (
     <div className="space-y-6" data-testid="dashboard-container">
+      {/* Race Countdown Header */}
+      {raceDate && daysToRace > 0 && (
+        <Card className="border-primary/30 bg-primary/5" data-testid="card-race-countdown">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Race Day Countdown</p>
+                <p className="text-4xl font-bold text-primary mt-1" data-testid="text-days-to-race">
+                  {daysToRace} <span className="text-lg font-normal text-muted-foreground">days to go</span>
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">Race Date</p>
+                <p className="text-lg font-semibold text-foreground">
+                  {new Date(raceDate + 'T00:00:00').toLocaleDateString('en-US', { 
+                    weekday: 'short',
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                  })}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="stats-grid">
         <StatCard
@@ -107,12 +142,44 @@ export function Dashboard({ settings, trainingPlan, dayDetails, currentWeek, onT
         
         <WeatherCard />
         
-        <StatCard
-          icon={Calendar}
-          label="Days to Race"
-          value={daysToRace > 0 ? daysToRace : 'TBD'}
-          subtitle={raceDate ? new Date(raceDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Set race date'}
-        />
+        <Card 
+          className="border-border/50 hover-elevate cursor-pointer transition-all" 
+          onClick={() => onTabChange('workouts')}
+          data-testid="card-todays-workout"
+        >
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-chart-1/10 rounded-lg shrink-0">
+                <Play className="w-6 h-6 text-chart-1" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Today's Workout</p>
+                {todayWorkout ? (
+                  <>
+                    <p className="text-2xl font-bold text-foreground" data-testid="text-workout-type">
+                      {todayWorkout.type}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {todayWorkout.planned > 0 ? (
+                        <>
+                          {todayWorkout.planned} miles
+                          {todayWorkout.pace && ` @ ${todayWorkout.pace}/mi`}
+                        </>
+                      ) : (
+                        'Recovery day'
+                      )}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-2xl font-bold text-foreground">Rest</p>
+                    <p className="text-sm text-muted-foreground mt-1">No workout scheduled</p>
+                  </>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="border-border/50 hover-elevate" data-testid="card-nutrition">
           <CardContent className="p-6">

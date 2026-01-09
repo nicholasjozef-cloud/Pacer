@@ -1,8 +1,8 @@
-# Sub3VT Marathon Training App
+# Pacer Marathon Training App
 
 ## Overview
 
-Sub3VT is a marathon training companion application designed to help runners track workouts, nutrition, and progress towards a sub-3 hour marathon goal. The app features a data-driven dashboard with training plan management, calendar-based workout logging, nutrition tracking, and Strava integration for syncing activities.
+Pacer is a marathon training companion application designed to help runners track workouts, nutrition, and progress towards a sub-3 hour marathon goal. The app features a data-driven dashboard with training plan management, calendar-based workout logging, nutrition tracking, and Strava integration for syncing activities.
 
 ## User Preferences
 

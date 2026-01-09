@@ -249,31 +249,10 @@ export default function Home() {
               <Target className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h1 className="font-bold text-lg text-foreground" data-testid="text-app-name">Sub3VT</h1>
+              <h1 className="font-bold text-lg text-foreground" data-testid="text-app-name">Pacer</h1>
               <p className="text-xs text-muted-foreground hidden sm:block" data-testid="text-app-tagline">Marathon Training</p>
             </div>
           </div>
-
-          {/* Race countdown */}
-          {settings.raceDate && (
-            <div className="hidden md:block text-center" data-testid="race-countdown">
-              {(() => {
-                const [year, month, day] = settings.raceDate.split('-').map(Number);
-                const raceDateObj = new Date(year, month - 1, day);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                raceDateObj.setHours(0, 0, 0, 0);
-                const daysToRace = Math.ceil((raceDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                
-                return (
-                  <>
-                    <p className="text-2xl font-bold text-primary" data-testid="text-days-to-race">{daysToRace}</p>
-                    <p className="text-xs text-muted-foreground">days to race</p>
-                  </>
-                );
-              })()}
-            </div>
-          )}
 
           <Button 
             variant="ghost" 
