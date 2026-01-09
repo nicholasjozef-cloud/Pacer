@@ -1,6 +1,7 @@
-import { Target, Activity, Zap, Calendar, TrendingUp, Award } from 'lucide-react';
+import { Target, Activity, Calendar, TrendingUp, Award } from 'lucide-react';
 import { StatCard, ProgressStatCard } from './stat-card';
 import { WeeklyProgressChart } from './weekly-progress-chart';
+import { WeatherCard } from './weather-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { UserSettingsData, TrainingPlan, DayDetailsData } from '@shared/schema';
@@ -16,7 +17,7 @@ interface DashboardProps {
 }
 
 export function Dashboard({ settings, trainingPlan, dayDetails, currentWeek, onTabChange }: DashboardProps) {
-  const { targetTime, raceDate, bodyWeight } = settings;
+  const { targetTime, raceDate } = settings;
 
   // Calculate days to race
   let daysToRace = 0;
@@ -40,6 +41,17 @@ export function Dashboard({ settings, trainingPlan, dayDetails, currentWeek, onT
     planned: currentWeekPlan.reduce((sum, w) => sum + w.planned, 0),
     actual: currentWeekPlan.reduce((sum, w) => sum + (w.actual || 0), 0),
   };
+
+  // Get Monday of current week for display
+  const getMondayOfCurrentWeek = () => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + diff);
+    return monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+  const mondayDate = getMondayOfCurrentWeek();
 
   // Count completed runs
   const runsCompleted = currentWeekPlan.filter(w => w.actual && w.actual > 0).length;
@@ -78,11 +90,12 @@ export function Dashboard({ settings, trainingPlan, dayDetails, currentWeek, onT
         
         <ProgressStatCard
           icon={Activity}
-          label={`Week ${currentWeek} Volume`}
+          label={`Week of ${mondayDate}`}
           value={`${weeklyVolume.actual.toFixed(1)} mi`}
           subtitle={`Planned: ${weeklyVolume.planned.toFixed(1)} mi`}
           progress={weeklyVolume.planned > 0 ? (weeklyVolume.actual / weeklyVolume.planned) * 100 : 0}
           progressLabel="Completed"
+          onClick={() => onTabChange('workouts')}
         />
         
         <StatCard
@@ -92,12 +105,7 @@ export function Dashboard({ settings, trainingPlan, dayDetails, currentWeek, onT
           subtitle="This week"
         />
         
-        <StatCard
-          icon={Zap}
-          label="Current Weight"
-          value={`${bodyWeight} lbs`}
-          subtitle="Race weight target"
-        />
+        <WeatherCard />
         
         <StatCard
           icon={Calendar}
@@ -171,7 +179,7 @@ export function Dashboard({ settings, trainingPlan, dayDetails, currentWeek, onT
           onClick={() => onTabChange('workouts')}
           data-testid="button-quick-log"
         >
-          <Zap className="w-5 h-5" />
+          <TrendingUp className="w-5 h-5" />
           <span>Log Workout</span>
         </Button>
       </div>
