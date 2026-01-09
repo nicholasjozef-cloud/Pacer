@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Cloud, CloudRain, CloudSnow, Sun, CloudDrizzle, Loader2 } from 'lucide-react';
+import { Cloud, CloudRain, CloudSnow, Sun, CloudDrizzle, Loader2, MapPin } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface WeatherData {
@@ -9,6 +9,11 @@ interface WeatherData {
   precipitation: number;
   weatherCode: number;
   summary: string;
+}
+
+interface LocationData {
+  latitude: number;
+  longitude: number;
 }
 
 function getWeatherIcon(code: number, size: string = "w-6 h-6") {
@@ -32,17 +37,52 @@ function getWeatherSummary(code: number, temp: number, precipitation: number): s
 
 export function WeatherCard() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [location, setLocation] = useState<LocationData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [locationDenied, setLocationDenied] = useState(false);
 
   useEffect(() => {
+    const getLocation = () => {
+      if (!navigator.geolocation) {
+        setError('Geolocation not supported');
+        setLoading(false);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        (err) => {
+          console.error('Geolocation error:', err);
+          if (err.code === err.PERMISSION_DENIED) {
+            setLocationDenied(true);
+          }
+          setError('Location access needed for weather');
+          setLoading(false);
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 300000,
+        }
+      );
+    };
+
+    getLocation();
+  }, []);
+
+  useEffect(() => {
+    if (!location) return;
+
     const fetchWeather = async () => {
       try {
-        const latitude = 42.4859;
-        const longitude = -83.1052;
-        
         const response = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,precipitation,weather_code&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&precipitation_unit=inch&timezone=America%2FNew_York&forecast_days=1`
+          `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,precipitation,weather_code&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&precipitation_unit=inch&timezone=auto&forecast_days=1`
         );
         
         if (!response.ok) throw new Error('Weather fetch failed');
@@ -64,7 +104,7 @@ export function WeatherCard() {
         setLoading(false);
       } catch (err) {
         console.error('Failed to fetch weather:', err);
-        setError(true);
+        setError('Unable to load weather');
         setLoading(false);
       }
     };
@@ -72,14 +112,15 @@ export function WeatherCard() {
     fetchWeather();
     const interval = setInterval(fetchWeather, 30 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [location]);
 
   if (loading) {
     return (
       <Card className="border-border/50" data-testid="card-weather">
         <CardContent className="p-6">
-          <div className="flex items-center justify-center h-24">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          <div className="flex items-center justify-center h-24 gap-2">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Getting location...</span>
           </div>
         </CardContent>
       </Card>
@@ -92,11 +133,19 @@ export function WeatherCard() {
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-muted/10 rounded-lg shrink-0">
-              <Cloud className="w-6 h-6 text-muted-foreground" />
+              {locationDenied ? (
+                <MapPin className="w-6 h-6 text-muted-foreground" />
+              ) : (
+                <Cloud className="w-6 h-6 text-muted-foreground" />
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-muted-foreground mb-1">Today's Weather</p>
-              <p className="text-sm text-muted-foreground">Unable to load weather</p>
+              <p className="text-sm text-muted-foreground">
+                {locationDenied 
+                  ? 'Enable location access for weather' 
+                  : error || 'Unable to load weather'}
+              </p>
             </div>
           </div>
         </CardContent>
