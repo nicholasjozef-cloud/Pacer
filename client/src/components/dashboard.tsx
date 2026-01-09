@@ -163,23 +163,23 @@ export function Dashboard({ settings, trainingPlan, dayDetails, currentWeek, onT
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-muted-foreground mb-1">Today's Workout</p>
                 {todayWorkout ? (
-                  <>
-                    <p className="text-2xl font-bold text-foreground" data-testid="text-workout-type">
-                      {todayWorkout.type}
-                    </p>
-                    {todayWorkout.planned > 0 ? (
-                      <div className="flex flex-col gap-0.5 mt-1">
-                        <p className="text-sm text-muted-foreground" data-testid="text-workout-distance">
-                          Distance: {todayWorkout.planned} miles
-                        </p>
-                        <p className="text-sm text-muted-foreground" data-testid="text-workout-pace">
-                          Pace: {todayWorkout.pace ? `${todayWorkout.pace}/mi` : 'Not set'}
-                        </p>
-                      </div>
-                    ) : (
+                  todayWorkout.planned > 0 ? (
+                    <>
+                      <p className="text-2xl font-bold text-foreground" data-testid="text-workout-type">
+                        {todayWorkout.type}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1" data-testid="text-workout-details">
+                        {todayWorkout.planned} miles{todayWorkout.pace ? `, ${todayWorkout.pace} pace` : ''}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-2xl font-bold text-foreground" data-testid="text-workout-type">
+                        {todayWorkout.type}
+                      </p>
                       <p className="text-sm text-muted-foreground mt-1">Recovery day</p>
-                    )}
-                  </>
+                    </>
+                  )
                 ) : (
                   <>
                     <p className="text-2xl font-bold text-foreground">Rest</p>
