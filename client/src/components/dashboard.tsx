@@ -159,16 +159,18 @@ export function Dashboard({ settings, trainingPlan, dayDetails, currentWeek, onT
                     <p className="text-2xl font-bold text-foreground" data-testid="text-workout-type">
                       {todayWorkout.type}
                     </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {todayWorkout.planned > 0 ? (
-                        <>
-                          {todayWorkout.planned} miles
-                          {todayWorkout.pace && ` @ ${todayWorkout.pace}/mi`}
-                        </>
-                      ) : (
-                        'Recovery day'
-                      )}
-                    </p>
+                    {todayWorkout.planned > 0 ? (
+                      <div className="flex flex-col gap-0.5 mt-1">
+                        <p className="text-sm text-muted-foreground" data-testid="text-workout-distance">
+                          Distance: {todayWorkout.planned} miles
+                        </p>
+                        <p className="text-sm text-muted-foreground" data-testid="text-workout-pace">
+                          Pace: {todayWorkout.pace ? `${todayWorkout.pace}/mi` : 'Not set'}
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground mt-1">Recovery day</p>
+                    )}
                   </>
                 ) : (
                   <>
