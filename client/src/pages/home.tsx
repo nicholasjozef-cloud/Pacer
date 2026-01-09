@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getSupabase } from '@/lib/supabase';
-import { userSettingsService, dayDetailsService, authService } from '@/lib/services';
+import { userSettingsService, dayDetailsService, authService, trainingPlanService } from '@/lib/services';
 import { Auth } from '@/components/auth';
 import { Dashboard } from '@/components/dashboard';
 import { CalendarView } from '@/components/calendar-view';
@@ -122,6 +122,12 @@ export default function Home() {
         // Load day details using service
         const loadedDayDetails = await dayDetailsService.getAll(user.id);
         setDayDetails(loadedDayDetails);
+
+        // Load training plan from localStorage
+        const loadedPlan = trainingPlanService.get(user.id);
+        if (loadedPlan) {
+          setTrainingPlan(loadedPlan);
+        }
       } catch (error) {
         console.error('Error loading user data:', error);
         setSaveError('Failed to load your data');
@@ -197,6 +203,10 @@ export default function Home() {
       if (newPlan[week] && newPlan[week][dayIndex]) {
         newPlan[week] = [...newPlan[week]];
         newPlan[week][dayIndex] = { ...newPlan[week][dayIndex], ...updates };
+      }
+      // Save to localStorage
+      if (user) {
+        trainingPlanService.save(user.id, newPlan);
       }
       return newPlan;
     });

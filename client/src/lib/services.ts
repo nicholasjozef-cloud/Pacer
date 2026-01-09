@@ -1,5 +1,5 @@
 import { getSupabase } from './supabase';
-import type { UserSettingsData, DayDetailsData } from '@shared/schema';
+import type { UserSettingsData, DayDetailsData, TrainingPlan } from '@shared/schema';
 
 export const userSettingsService = {
   async get(userId: string): Promise<UserSettingsData | null> {
@@ -179,6 +179,37 @@ export const stravaService = {
       console.error('Error deleting Strava connection:', error);
       throw error;
     }
+  },
+};
+
+export const trainingPlanService = {
+  getStorageKey(userId: string): string {
+    return `pacer_training_plan_${userId}`;
+  },
+
+  get(userId: string): TrainingPlan | null {
+    try {
+      const stored = localStorage.getItem(this.getStorageKey(userId));
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      return null;
+    } catch (error) {
+      console.error('Error loading training plan:', error);
+      return null;
+    }
+  },
+
+  save(userId: string, plan: TrainingPlan): void {
+    try {
+      localStorage.setItem(this.getStorageKey(userId), JSON.stringify(plan));
+    } catch (error) {
+      console.error('Error saving training plan:', error);
+    }
+  },
+
+  clear(userId: string): void {
+    localStorage.removeItem(this.getStorageKey(userId));
   },
 };
 
